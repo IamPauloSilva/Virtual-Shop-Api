@@ -1,12 +1,17 @@
 using Microsoft.EntityFrameworkCore;
 using VShop.Products.Context;
+using VShop.Products.Repositorys;
 using VShop.Products.Services.CategoryService;
+using VShop.Products.Services.ProductService;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IProductInterface, ProductService>();
 builder.Services.AddScoped<ICategoryInterface, CategoryService>();
 
 
