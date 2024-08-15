@@ -4,14 +4,16 @@ using VShop.Products.Models;
 
 namespace VShop.Products.Mappings
 {
-    public class MappingProfile : Profile   
+    public class MappingProfile : Profile
     {
-
-        MapperConfiguration configuration = new MapperConfiguration(cfg =>
+        public MappingProfile()
         {
-            cfg.CreateMap<Category, CategoryDto>()
-               .ReverseMap();
-        });
+            
+            CreateMap<Category, CategoryDto>().ReverseMap();
 
+            CreateMap<ProductDto, Product>();
+            CreateMap<Product, ProductDto>()
+                .ForMember(dto => dto.CategoryName, opt => opt.MapFrom(src => src.Category.Name));
+        }
     }
 }

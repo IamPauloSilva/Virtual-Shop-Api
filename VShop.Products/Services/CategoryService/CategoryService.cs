@@ -19,8 +19,13 @@ namespace VShop.Products.Services.CategoryService
 
         public async Task<IEnumerable<CategoryDto>> GetCategories()
         {
+            
             var categoriesEntity = await _categoryRepository.GetAll();
-            return _mapper.Map<IEnumerable<CategoryDto>>(categoriesEntity);
+
+            
+            var categoriesDto = _mapper.Map<IEnumerable<CategoryDto>>(categoriesEntity);
+
+            return categoriesDto;
         }
 
         public async Task<IEnumerable<CategoryDto>> GetCategoriesProducts()
