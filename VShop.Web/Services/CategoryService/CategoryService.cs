@@ -16,9 +16,10 @@ namespace VShop.Web.Services.CategoryService
             _options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         }
 
-        public async Task<IEnumerable<CategoryModel>> GetAllCategories()
+        public async Task<IEnumerable<CategoryModel>> GetAllCategories(string token )
         {
             var client = _clientFactory.CreateClient("ProductApi");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             IEnumerable<CategoryModel> categories = new List<CategoryModel>(); // Default to empty list
 

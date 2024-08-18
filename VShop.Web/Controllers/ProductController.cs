@@ -27,8 +27,9 @@ namespace VShop.Web.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductModel>>> Index()
         {
-
-            var result = await _productInterface.GetAllProducts();
+            
+            
+            var result = await _productInterface.GetAllProducts(await GetAccessToken());
 
             if (result is null)
                 return View("Error");
@@ -39,7 +40,7 @@ namespace VShop.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateProduct()
         {
-            ViewBag.CategoryId = new SelectList(await _categoryInterface.GetAllCategories(), "CategoryId", "Name");
+            ViewBag.CategoryId = new SelectList(await _categoryInterface.GetAllCategories(await GetAccessToken()), "CategoryId", "Name");
             return View();
         }
 
@@ -49,7 +50,7 @@ namespace VShop.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _productInterface.CreateProduct(product);
+                var result = await _productInterface.CreateProduct(product, await GetAccessToken());
 
                 if (result != null)
                     return RedirectToAction(nameof(Index));
@@ -57,7 +58,7 @@ namespace VShop.Web.Controllers
             else
             {
                 ViewBag.CategoryId = new SelectList(await
-                                     _categoryInterface.GetAllCategories(), "CategoryId", "Name");
+                                     _categoryInterface.GetAllCategories(await GetAccessToken()), "CategoryId", "Name");
             }
             return View(product);
         }
@@ -66,9 +67,9 @@ namespace VShop.Web.Controllers
         public async Task<IActionResult> UpdateProduct(int id)
         {
             ViewBag.CategoryId = new SelectList(await
-                               _categoryInterface.GetAllCategories(), "CategoryId", "Name");
+                               _categoryInterface.GetAllCategories(await GetAccessToken()), "CategoryId", "Name");
 
-            var result = await _productInterface.FindProductById(id);
+            var result = await _productInterface.FindProductById(id, await GetAccessToken());
 
             if (result is null)
                 return View("Error");
@@ -82,7 +83,7 @@ namespace VShop.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _productInterface.UpdateProduct(product);
+                var result = await _productInterface.UpdateProduct(product, await GetAccessToken());
 
                 if (result is not null)
                     return RedirectToAction(nameof(Index));
@@ -93,7 +94,7 @@ namespace VShop.Web.Controllers
         [HttpGet]
         public async Task<ActionResult<ProductModel>> DeleteProduct(int id)
         {
-            var result = await _productInterface.FindProductById(id);
+            var result = await _productInterface.FindProductById(id, await GetAccessToken());
 
             if (result is null)
                 return View("Error");
@@ -105,7 +106,7 @@ namespace VShop.Web.Controllers
         [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var result = await _productInterface.DeleteProductById(id);
+            var result = await _productInterface.DeleteProductById(id, await GetAccessToken());
 
             if (!result)
                 return View("Error");

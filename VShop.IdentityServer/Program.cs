@@ -5,6 +5,7 @@ using VShop.IdentityServer.Configuration;
 using VShop.IdentityServer.Data;
 using VShop.IdentityServer.SeedDatabase;
 using VShop.IdentityServer.SeedDataBase;
+using VShop.IdentityServer.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,7 +40,7 @@ var builderIdentityServer = builder.Services.AddIdentityServer(options =>
 builderIdentityServer.AddDeveloperSigningCredential();
 
 builder.Services.AddScoped<IDatabaseSeedInitializer, DatabaseIdentityServerInitializer>();
-
+builder.Services.AddScoped<IProfileService, ProfileAppService>();
 
 var app = builder.Build();
 
