@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using VShop.IdentityServer.Configuration;
 using VShop.IdentityServer.Data;
+using VShop.IdentityServer.SeedDatabase;
+using VShop.IdentityServer.SeedDataBase;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,9 +34,11 @@ var builderIdentityServer = builder.Services.AddIdentityServer(options =>
                        IdentityConfiguration.IdentityResources)
                        .AddInMemoryApiScopes(IdentityConfiguration.ApiScopes)
                        .AddInMemoryClients(IdentityConfiguration.Clients)
-                       ;
+                       .AddAspNetIdentity<ApplicationUser>();
 
 builderIdentityServer.AddDeveloperSigningCredential();
+
+builder.Services.AddScoped<IDatabaseSeedInitializer, DatabaseIdentityServerInitializer>();
 
 
 var app = builder.Build();
@@ -50,6 +55,7 @@ app.UseRouting();
 app.UseIdentityServer();
 app.UseAuthorization();
 
+SeedDatabaseIdentityServer(app);
 
 app.MapControllerRoute(
     name: "default",
@@ -57,3 +63,14 @@ app.MapControllerRoute(
 
 app.Run();
 
+void SeedDatabaseIdentityServer(IApplicationBuilder app)
+{
+    using (var serviceScope = app.ApplicationServices.CreateScope())
+    {
+        var initRolesUsers = serviceScope.ServiceProvider
+                               .GetService<IDatabaseSeedInitializer>();
+
+        initRolesUsers.InitializeSeedRoles();
+        initRolesUsers.InitializeSeedUsers();
+    }
+}

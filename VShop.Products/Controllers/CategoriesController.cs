@@ -2,13 +2,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VShop.Products.Dto;
+using VShop.Products.Roles;
 using VShop.Products.Services.CategoryService;
 
 namespace VShop.Products.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    
+    [Authorize]
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryInterface _categoryInterface;
@@ -52,6 +53,7 @@ namespace VShop.Products.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = Role.Admin)]
         public async Task<ActionResult> Post([FromBody] CategoryDto categoryDto)
         {
             if (categoryDto == null)
@@ -64,6 +66,7 @@ namespace VShop.Products.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = Role.Admin)]
         public async Task<ActionResult> Put(int id, [FromBody] CategoryDto categoryDto)
         {
             if (id != categoryDto.CategoryId)
@@ -78,6 +81,7 @@ namespace VShop.Products.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = Role.Admin)]
         public async Task<ActionResult<CategoryDto>> Delete(int id)
         {
             var categoryDto = await _categoryInterface.GetCategoryById(id);
