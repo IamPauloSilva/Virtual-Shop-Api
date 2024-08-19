@@ -2,14 +2,27 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using VShop.Web.Services.CategoryService;
 using VShop.Web.Services.ProductService;
+using VShop.Web.Services;
+using VShop.Web.Services.CartService;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddHttpClient("ProductApi", c => c.BaseAddress = new Uri(builder.Configuration["ServiceUri:ProductApi"]));
+builder.Services.AddHttpClient<IProductInterface, ProductService>("ProductApi", c =>
+{
+    c.BaseAddress = new Uri(builder.Configuration["ServiceUri:ProductApi"]);
+    c.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
+    c.DefaultRequestHeaders.Add("Keep-Alive", "3600");
+    c.DefaultRequestHeaders.Add("User-Agent", "HttpClientFactory-ProductApi");
+});
 
+builder.Services.AddHttpClient<ICartInterface, CartService>("CartApi",
+    c => c.BaseAddress = new Uri(builder.Configuration["ServiceUri:CartApi"])
+);
+
+builder.Services.AddScoped<ICartInterface, CartService>();   
 builder.Services.AddScoped<IProductInterface, ProductService>();
 builder.Services.AddScoped<ICategoryInterface, CategoryService>();
 
