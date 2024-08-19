@@ -4,6 +4,7 @@ using VShop.Web.Services.CategoryService;
 using VShop.Web.Services.ProductService;
 using VShop.Web.Services;
 using VShop.Web.Services.CartService;
+using VShop.Web.Services.CouponService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +22,11 @@ builder.Services.AddHttpClient<IProductInterface, ProductService>("ProductApi", 
 builder.Services.AddHttpClient<ICartInterface, CartService>("CartApi",
     c => c.BaseAddress = new Uri(builder.Configuration["ServiceUri:CartApi"])
 );
+builder.Services.AddHttpClient<ICouponInterface, CouponService>("DiscountApi", c =>
+   c.BaseAddress = new Uri(builder.Configuration["ServiceUri:DiscountApi"])
+);
 
+builder.Services.AddScoped<ICouponInterface, CouponService>();
 builder.Services.AddScoped<ICartInterface, CartService>();   
 builder.Services.AddScoped<IProductInterface, ProductService>();
 builder.Services.AddScoped<ICategoryInterface, CategoryService>();

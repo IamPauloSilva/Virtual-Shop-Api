@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using VShop.Web.Models;
 using VShop.Web.Services;
 using VShop.Web.Services.CartService;
+using VShop.Web.Services.CouponService;
 
 
 namespace VShop.Web.Controllers
@@ -11,12 +12,12 @@ namespace VShop.Web.Controllers
     public class CartController : Controller
     {
         private readonly ICartInterface _cartInterface;
-        
+        private readonly ICouponInterface _couponInterface;
 
-        public CartController(ICartInterface cartInterface)
+        public CartController(ICartInterface cartInterface, ICouponInterface couponInterface)
         {
             _cartInterface = cartInterface;
-            
+            _couponInterface = couponInterface;
         }
 
         [Authorize]
@@ -40,14 +41,25 @@ namespace VShop.Web.Controllers
 
             var cart = await _cartInterface.GetCartByUserIdAsync(GetUserId(), await GetAccessToken());
 
-            if(cart?.CartHeader is not null)
+            if (cart?.CartHeader is not null)
             {
-                
+                if (!string.IsNullOrEmpty(cart.CartHeader.CouponCode))
+                {
+                    var coupon = await _couponInterface.GetDiscountCoupon(cart.CartHeader.CouponCode,
+                                                                        await GetAccessToken());
+                    if (coupon?.CouponCode is not null)
+                    {
+                        cart.CartHeader.Discount = coupon.Discount;
+                    }
+                }
                 foreach (var item in cart.CartItems)
                 {
                     cart.CartHeader.TotalAmount += (item.Product.Price * item.Quantity);
                 }
-                
+
+                cart.CartHeader.TotalAmount = cart.CartHeader.TotalAmount -
+                                             (cart.CartHeader.TotalAmount *
+                                              cart.CartHeader.Discount) / 100;
             }
             return cart;
         }
@@ -71,6 +83,32 @@ namespace VShop.Web.Controllers
         private string GetUserId()
         {
             return User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ApplyCoupon(CartViewModel cartVM)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _cartInterface.ApplyCouponAsync(cartVM, await GetAccessToken());
+                if (result)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteCoupon()
+        {
+            var result = await _cartInterface.RemoveCouponAsync(GetUserId(), await GetAccessToken());
+
+            if (result)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            return View();
         }
     }
 }
