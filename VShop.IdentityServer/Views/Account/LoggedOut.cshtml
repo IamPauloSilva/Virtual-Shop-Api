@@ -1,7 +1,7 @@
 ﻿@model LoggedOutViewModel
 
-@{ 
-    // set this so the layout rendering sees an anonymous user
+@{
+    // Set this so the layout rendering sees an anonymous user
     ViewData["signed-out"] = true;
 }
 
@@ -29,6 +29,16 @@
 {
     @if (Model.AutomaticRedirectAfterSignOut)
     {
-        <script src="~/js/signout-redirect.js"></script>
+        <script>
+            window.onload = function () {
+                var redirectUri = '@Model.PostLogoutRedirectUri';
+                if (redirectUri) {
+                    window.location = redirectUri;
+                }
+                else {
+                    window.location = '/'; // Default fallback URL
+                }
+            };
+        </script>
     }
 }

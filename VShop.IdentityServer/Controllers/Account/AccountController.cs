@@ -211,14 +211,13 @@ namespace IdentityServerHost.Quickstart.UI
         [HttpGet]
         public async Task<IActionResult> Logout(string logoutId)
         {
-            // build a model so the logout page knows what to display
+            
             var vm = await BuildLogoutViewModelAsync(logoutId);
 
             if (vm.ShowLogoutPrompt == false)
             {
-                // if the request for logout was properly authenticated from IdentityServer, then
-                // we don't need to show the prompt and can just log the user out directly.
-                return await Logout(vm);
+                
+                return await Logout(new LogoutInputModel { LogoutId = logoutId });
             }
 
             return View(vm);
@@ -231,33 +230,38 @@ namespace IdentityServerHost.Quickstart.UI
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout(LogoutInputModel model)
         {
-            // build a model so the logged out page knows what to display
+            
             var vm = await BuildLoggedOutViewModelAsync(model.LogoutId);
 
             if (User?.Identity.IsAuthenticated == true)
             {
-                // delete local authentication cookie
-                //await HttpContext.SignOutAsync();
+                
                 await _signInManager.SignOutAsync();
 
-                // raise the logout event
+                
                 await _events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName()));
             }
 
-            // check if we need to trigger sign-out at an upstream identity provider
+            
             if (vm.TriggerExternalSignout)
             {
-                // build a return URL so the upstream provider will redirect back
-                // to us after the user has logged out. this allows us to then
-                // complete our single sign-out processing.
+                
                 string url = Url.Action("Logout", new { logoutId = vm.LogoutId });
 
-                // this triggers a redirect to the external provider for sign-out
+                
                 return SignOut(new AuthenticationProperties { RedirectUri = url }, vm.ExternalAuthenticationScheme);
             }
 
-            return View("LoggedOut", vm);
+            
+            if (vm.PostLogoutRedirectUri != null)
+            {
+                return Redirect(vm.PostLogoutRedirectUri);
+            }
+
+            
+            return Redirect("~/");
         }
+
 
         [HttpGet]
         public IActionResult AccessDenied()
@@ -411,5 +415,57 @@ namespace IdentityServerHost.Quickstart.UI
 
             return vm;
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DemoLogin(string demoType, string returnUrl)
+        {
+            string username;
+            string password = "Numsey#2024"; 
+
+            
+            if (demoType == "admin")
+            {
+                username = "admin";
+            }
+            else if (demoType == "client")
+            {
+                username = "client";
+            }
+            else
+            {
+                
+                return RedirectToAction("Index", "Home");
+            }
+
+            
+            var result = await _signInManager.PasswordSignInAsync(
+                username,
+                password,
+                isPersistent: false, 
+                lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                var user = await _userManager.FindByNameAsync(username);
+                await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName, clientId: null));
+
+                
+                if (Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+                else
+                {
+                    
+                    return Redirect("~/");
+                }
+            }
+
+            
+            ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
+            return RedirectToAction("Login");
+        }
+
+
     }
 }

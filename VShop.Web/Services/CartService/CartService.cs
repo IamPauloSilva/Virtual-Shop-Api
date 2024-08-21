@@ -155,7 +155,7 @@ public class CartService : ICartInterface
         var client = _clientFactory.CreateClient("CartApi");
         PutTokenInHeaderAuthorization(token, client);
 
-        // Use DELETE para limpar o carrinho
+        
         var response = await client.DeleteAsync($"{apiEndpoint}/cleancart/{userId}");
 
         if (response.IsSuccessStatusCode)
@@ -164,7 +164,7 @@ public class CartService : ICartInterface
         }
         else
         {
-            // Log de erro e tratamento
+            
             var errorContent = await response.Content.ReadAsStringAsync();
             
             return false;
