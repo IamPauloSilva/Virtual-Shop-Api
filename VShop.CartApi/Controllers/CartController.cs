@@ -98,4 +98,16 @@ public class CartController : ControllerBase
 
         return Ok(status);
     }
+
+    [HttpDelete("cleancart/{userId}")]
+    public async Task<ActionResult<bool>> CleanCart(string userId)
+    {
+        var status = await _repository.CleanCartAsync(userId);
+
+        if (!status)
+            return BadRequest();
+
+        return Ok(status);
+    }
+
 }

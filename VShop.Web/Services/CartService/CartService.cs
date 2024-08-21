@@ -150,10 +150,27 @@ public class CartService : ICartInterface
 
     }
 
-    public Task<bool> ClearCartAsync(string userId, string token)
+    public async Task<bool> ClearCartAsync(string userId, string token)
     {
-        throw new NotImplementedException();
+        var client = _clientFactory.CreateClient("CartApi");
+        PutTokenInHeaderAuthorization(token, client);
+
+        // Use DELETE para limpar o carrinho
+        var response = await client.DeleteAsync($"{apiEndpoint}/cleancart/{userId}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            return true;
+        }
+        else
+        {
+            // Log de erro e tratamento
+            var errorContent = await response.Content.ReadAsStringAsync();
+            
+            return false;
+        }
     }
+
 
     public async Task<CartHeaderViewModel> CheckoutAsync(CartHeaderViewModel cartHeaderVM, string token)
     {
@@ -180,4 +197,5 @@ public class CartService : ICartInterface
         return cartHeaderVM;
 
     }
+
 }

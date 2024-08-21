@@ -1,14 +1,32 @@
 ﻿@model CartViewModel
 
+@{
+    ViewData["Title"] = "Checkout";
+}
+@if (ViewData.ModelState.IsValid == false)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
 @if (Model is not null && Model.CartItems.Count() > 0)
 {
     <form method="post">
+        @Html.AntiForgeryToken()
+
+        <!-- Campos ocultos para dados do cabeçalho do carrinho -->
         <input asp-for="CartHeader.UserId" hidden />
         <input asp-for="CartHeader.Id" hidden />
         <input asp-for="CartHeader.CouponCode" hidden />
         <input asp-for="CartHeader.Discount" hidden />
         <input asp-for="CartHeader.TotalAmount" hidden />
         <input asp-for="CartItems" hidden />
+        
         <div>
             <span style="font-size:30px;">Billing Address</span>
             <br />
@@ -22,41 +40,49 @@
                                 <i class="fa fa-user"></i> &nbsp;
                                 <label class="col-form-label">First Name:</label>
                                 <input asp-for="CartHeader.FirstName" class="form-control" />
+                                <span asp-validation-for="CartHeader.FirstName" class="text-danger"></span>
                             </div>
                             <div class="col-6">
                                 <label class="col-form-label">Last Name:</label>
                                 <input asp-for="CartHeader.LastName" class="form-control" />
+                                <span asp-validation-for="CartHeader.LastName" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-12">
                             <i class="fa fa-envelope"></i> &nbsp;
                             <label class="col-form-label">E-mail:</label>
                             <input asp-for="CartHeader.Email" class="form-control" />
+                            <span asp-validation-for="CartHeader.Email" class="text-danger"></span>
                         </div>
                         <div class="col-12">
                             <i class="fa fa-phone"></i> &nbsp;
                             <label class="col-form-label">Telephone:</label>
                             <input asp-for="CartHeader.Telephone" class="form-control" />
+                            <span asp-validation-for="CartHeader.Telephone" class="text-danger"></span>
                         </div>
                         <div class="row">
                             <div class="col-6">
                                 <i class="fa fa-credit-card"></i> &nbsp;
                                 <label class="col-form-label">Card Number:</label>
                                 <input asp-for="CartHeader.CardNumber" class="form-control" />
+                                <span asp-validation-for="CartHeader.CardNumber" class="text-danger"></span>
                             </div>
                             <div class="col-6">
                                 <label class="col-form-label">Name on Card:</label>
                                 <input asp-for="CartHeader.NameOnCard" class="form-control" />
+                                <span asp-validation-for="CartHeader.NameOnCard" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-6">
                                 <label class="col-form-label">CVV:</label>
                                 <input asp-for="CartHeader.CVV" class="form-control" />
+                                <span asp-validation-for="CartHeader.CVV" class="text-danger"></span>
                             </div>
                             <div class="col-6 pb-4">
                                 <label class="col-form-label">Expire Date:</label>
                                 <input asp-for="CartHeader.ExpireMonthYear" placeholder="MMYY" class="form-control" />
+                                <span asp-validation-for="CartHeader.ExpireMonthYear" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -98,7 +124,6 @@
                                             @item.Quantity
                                         </span>
                                     </div>
-
                                 </div>
                                 <hr />
                             }

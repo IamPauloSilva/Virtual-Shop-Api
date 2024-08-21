@@ -11,8 +11,8 @@ using VShop.DiscountApi.Context;
 namespace VShop.DiscountApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240819013759_Coupons")]
-    partial class Coupons
+    [Migration("20240820233457_updatedb")]
+    partial class updatedb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

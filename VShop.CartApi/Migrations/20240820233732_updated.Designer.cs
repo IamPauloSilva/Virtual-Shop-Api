@@ -11,8 +11,8 @@ using VShop.CartApi.Context;
 namespace VShop.CartApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240818232540_initial")]
-    partial class initial
+    [Migration("20240820233732_updated")]
+    partial class updated
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,7 +33,6 @@ namespace VShop.CartApi.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CouponCode")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 

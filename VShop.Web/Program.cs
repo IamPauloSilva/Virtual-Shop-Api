@@ -31,6 +31,7 @@ builder.Services.AddScoped<ICartInterface, CartService>();
 builder.Services.AddScoped<IProductInterface, ProductService>();
 builder.Services.AddScoped<ICategoryInterface, CategoryService>();
 
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = "Cookies";

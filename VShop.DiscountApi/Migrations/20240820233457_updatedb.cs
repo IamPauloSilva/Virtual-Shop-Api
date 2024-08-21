@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace VShop.DiscountApi.Migrations
 {
     /// <inheritdoc />
-    public partial class Coupons : Migration
+    public partial class updatedb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

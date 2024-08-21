@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
 using VShop.Web.Models;
 using VShop.Web.Services;
 using VShop.Web.Services.CartService;
 using VShop.Web.Services.CouponService;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace VShop.Web.Controllers
@@ -13,11 +15,13 @@ namespace VShop.Web.Controllers
     {
         private readonly ICartInterface _cartInterface;
         private readonly ICouponInterface _couponInterface;
+        private readonly ILogger<CartController> _logger;
 
-        public CartController(ICartInterface cartInterface, ICouponInterface couponInterface)
+        public CartController(ICartInterface cartInterface, ICouponInterface couponInterface, ILogger<CartController> logger)
         {
             _cartInterface = cartInterface;
             _couponInterface = couponInterface;
+            _logger = logger;
         }
 
         [Authorize]
@@ -121,17 +125,50 @@ namespace VShop.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Checkout(CartViewModel cartVM)
         {
-            if (ModelState.IsValid)
+            
+            if (!ModelState.IsValid)
             {
-                var result = await _cartInterface.CheckoutAsync(cartVM.CartHeader, await GetAccessToken());
-
-                if (result is not null)
+                
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
                 {
+                    _logger.LogError("Validation Error: " + error.ErrorMessage);
+                }
+
+                
+                return View(cartVM);
+            }
+
+            
+            var checkoutResult = await _cartInterface.CheckoutAsync(cartVM.CartHeader, await GetAccessToken());
+
+            
+            if (checkoutResult != null) 
+            {
+                
+                var clearCartResult = await _cartInterface.ClearCartAsync(cartVM.CartHeader.UserId, await GetAccessToken());
+
+                if (clearCartResult)
+                {
+                    
                     return RedirectToAction(nameof(CheckoutCompleted));
                 }
+                else
+                {
+                    
+                    ModelState.AddModelError("", "Checkout was successful, but clearing the cart failed. Please try again.");
+                    _logger.LogError("Failed to clear cart for user: " + cartVM.CartHeader.UserId);
+                }
             }
+            else
+            {
+                
+                ModelState.AddModelError("", "Checkout failed. Please try again.");
+            }
+
             return View(cartVM);
         }
+
+
 
         [HttpGet]
         public IActionResult CheckoutCompleted()
