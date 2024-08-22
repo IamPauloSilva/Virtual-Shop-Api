@@ -94,11 +94,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-// Configure URLs para HTTPS
-if (builder.Environment.IsProduction() && !string.IsNullOrEmpty(builder.Configuration["PORT"]))
-{
-    builder.WebHost.UseUrls($"https://*:{builder.Configuration["PORT"]}");
-}
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
