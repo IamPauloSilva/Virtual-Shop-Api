@@ -3,49 +3,49 @@
 # Serviço VShop.Web
 [services.vshopweb.build]
 builder = "dockerfile"
-dockerfilePath = "/app/Frontend/VShop.Web/Dockerfile"
+dockerfilePath = "./VShop.Web/Dockerfile"
 
 [services.vshopweb.deploy]
 startCommand = "./VShop.Web"
 restartPolicyType = "always"
-healthcheckPath = "./Frontend/VShop.Web//health"
+healthcheckPath = "./VShop.Web//health"
 
 # Serviço VShop.IdentityServer
 [services.identityserver.build]
 builder = "dockerfile"
-dockerfilePath = "/app/Backend/VShop.IdentityServer/Dockerfile"
+dockerfilePath = "./VShop.IdentityServer/Dockerfile"
 
 [services.identityserver.deploy]
 startCommand = "./VShop.IdentityServer"
 restartPolicyType = "always"
-healthcheckPath = "./Backend/VShop.IdentityServer//health"
+healthcheckPath = "./VShop.IdentityServer//health"
 
 # Serviço VShop.DiscountApi
 [services.discountapi.build]
 builder = "dockerfile"
-dockerfilePath = "/app/Backend/VShop.DiscountApi/Dockerfile"
+dockerfilePath = "./VShop.DiscountApi/Dockerfile"
 
 [services.discountapi.deploy]
 startCommand = "./VShop.DiscountApi"
 restartPolicyType = "always"
-healthcheckPath = "./Backend/VShop.DiscountApi//health"
+healthcheckPath = "./VShop.DiscountApi//health"
 
 # Serviço VShop.CartApi
 [services.cartapi.build]
 builder = "dockerfile"
-dockerfilePath = "/app/Backend/VShop.CartApi/Dockerfile"
+dockerfilePath = "./VShop.CartApi/Dockerfile"
 
 [services.cartapi.deploy]
 startCommand = "./VShop.CartApi"
 restartPolicyType = "always"
-healthcheckPath = "./Backend/VShop.CartApi//health"
+healthcheckPath = "./VShop.CartApi//health"
 
 # Serviço VShop.Products
 [services.products.build]
 builder = "dockerfile"
-dockerfilePath = "/app/Backend/VShop.Products/Dockerfile"
+dockerfilePath = "./VShop.Products/Dockerfile"
 
 [services.products.deploy]
 startCommand = "./VShop.Products"
 restartPolicyType = "always"
-healthcheckPath = "./Backend/VShop.Products//health"
+healthcheckPath = "./VShop.Products//health"
