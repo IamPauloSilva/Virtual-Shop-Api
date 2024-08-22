@@ -72,10 +72,12 @@ builder.Services.AddAuthentication(options =>
         return Task.CompletedTask;
     };
 
-    options.Authority = builder.Configuration["ServiceUri:IdentityServer"];
+    // Ensure HTTPS in production
+    options.Authority = builder.Environment.IsDevelopment()
+        ? builder.Configuration["ServiceUri:IdentityServer"]
+        : new Uri(builder.Configuration["ServiceUri:IdentityServer"]).ToString(); // Ensure this uses HTTPS in production
 
-    // Set RequireHttpsMetadata based on environment
-    options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+    options.RequireHttpsMetadata = !builder.Environment.IsDevelopment(); // Require HTTPS in non-development environments
 
     options.GetClaimsFromUserInfoEndpoint = true;
     options.ClientId = "vshop";
@@ -88,6 +90,7 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("vshop");
     options.SaveTokens = true;
 });
+
 
 // Session setup
 builder.Services.AddSession(options =>
