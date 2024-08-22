@@ -59,7 +59,7 @@ if (app.Environment.IsProduction())
     var port = builder.Configuration["PORT"];
     if (port is not null)
     {
-        app.Urls.Add($"https://*:{port}");
+        app.Urls.Add($"http://*:{port}");
     }
 }
 
@@ -83,6 +83,7 @@ using (var scope = app.Services.CreateScope())
 // Configure o pipeline HTTP
 if (!app.Environment.IsDevelopment())
 {
+    // Use exceção para produção
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
