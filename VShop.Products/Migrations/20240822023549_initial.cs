@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace VShop.Products.Migrations
 {
     /// <inheritdoc />
-    public partial class DbCreation : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,7 +17,7 @@ namespace VShop.Products.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Categories",
+                name: "ProductCategories",
                 columns: table => new
                 {
                     CategoryId = table.Column<int>(type: "int", nullable: false)
@@ -27,7 +27,7 @@ namespace VShop.Products.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Categories", x => x.CategoryId);
+                    table.PrimaryKey("PK_ProductCategories", x => x.CategoryId);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -51,16 +51,16 @@ namespace VShop.Products.Migrations
                 {
                     table.PrimaryKey("PK_Products", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Products_Categories_CategoryId",
+                        name: "FK_Products_ProductCategories_CategoryId",
                         column: x => x.CategoryId,
-                        principalTable: "Categories",
+                        principalTable: "ProductCategories",
                         principalColumn: "CategoryId",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.InsertData(
-                table: "Categories",
+                table: "ProductCategories",
                 columns: new[] { "CategoryId", "Name" },
                 values: new object[,]
                 {
@@ -81,7 +81,7 @@ namespace VShop.Products.Migrations
                 name: "Products");
 
             migrationBuilder.DropTable(
-                name: "Categories");
+                name: "ProductCategories");
         }
     }
 }

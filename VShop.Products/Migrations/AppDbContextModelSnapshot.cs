@@ -36,7 +36,7 @@ namespace VShop.Products.Migrations
 
                     b.HasKey("CategoryId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("ProductCategories");
 
                     b.HasData(
                         new

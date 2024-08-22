@@ -11,8 +11,8 @@ using VShop.Products.Context;
 namespace VShop.Products.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240815154407_DbCreation")]
-    partial class DbCreation
+    [Migration("20240822023549_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,7 +39,7 @@ namespace VShop.Products.Migrations
 
                     b.HasKey("CategoryId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("ProductCategories");
 
                     b.HasData(
                         new
