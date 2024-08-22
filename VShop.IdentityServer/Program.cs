@@ -47,18 +47,22 @@ builder.Services.AddIdentityServer(options =>
 .AddAspNetIdentity<ApplicationUser>()
 .AddDeveloperSigningCredential(); // Para desenvolvimento, em produção use certificados válidos
 
+// Serviços personalizados
 builder.Services.AddScoped<IDatabaseSeedInitializer, DatabaseIdentityServerInitializer>();
 builder.Services.AddScoped<IProfileService, ProfileAppService>();
 
 var app = builder.Build();
 
-if (builder.Environment.IsProduction())
+// Configuração para produção
+if (app.Environment.IsProduction())
 {
     var port = builder.Configuration["PORT"];
     if (port is not null)
-        builder.WebHost.UseUrls($"http://*:{port}");
-    
+    {
+        app.Urls.Add($"http://*:{port}");
+    }
 }
+
 // Migração automática do banco de dados
 using (var scope = app.Services.CreateScope())
 {
@@ -76,23 +80,21 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// Configure o pipeline HTTP
+if (!app.Environment.IsDevelopment())
 {
+    // Use exceção para produção
     app.UseExceptionHandler("/Home/Error");
-    
     app.UseHsts();
 }
 
-
-app.UseHttpsRedirection();
-
+app.UseHttpsRedirection();  // Apenas habilitado para produção
 app.UseStaticFiles();
 app.UseRouting();
 app.UseIdentityServer();
 app.UseAuthorization();
 
+// Inicializa dados do banco de dados
 SeedDatabaseIdentityServer(app);
 
 app.MapControllerRoute(
