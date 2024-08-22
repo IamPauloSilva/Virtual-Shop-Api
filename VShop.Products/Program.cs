@@ -51,6 +51,7 @@ builder.Services.AddAuthentication("Bearer")
         options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
     });
 
+
 // Configura autorização
 builder.Services.AddAuthorization(options =>
 {
