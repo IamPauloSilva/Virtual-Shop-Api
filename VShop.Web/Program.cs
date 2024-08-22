@@ -85,7 +85,7 @@ if (builder.Environment.IsProduction())
 {
     var port = builder.Configuration["PORT"];
     if (port is not null)
-        builder.WebHost.UseUrls($"http://*:{port}");
+        builder.WebHost.UseUrls($"http://[::]:{port}");
 }
 
 // Configure the HTTP request pipeline.
