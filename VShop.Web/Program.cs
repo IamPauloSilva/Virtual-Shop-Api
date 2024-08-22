@@ -1,11 +1,17 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
-using VShop.Web.Services.CategoryService;
-using VShop.Web.Services.ProductService;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using System;
+using System.Threading.Tasks;
 using VShop.Web.Services;
 using VShop.Web.Services.CartService;
+using VShop.Web.Services.CategoryService;
 using VShop.Web.Services.CouponService;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using VShop.Web.Services.ProductService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,7 +74,7 @@ builder.Services.AddAuthentication(options =>
 
     options.Authority = builder.Configuration["ServiceUri:IdentityServer"];
 
-    // Ensure HTTPS metadata is required only in production
+    // HTTPS configuration: set RequireHttpsMetadata based on environment
     options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
 
     options.GetClaimsFromUserInfoEndpoint = true;
