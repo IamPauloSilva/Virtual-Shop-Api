@@ -96,8 +96,8 @@ if (!app.Environment.IsDevelopment())
     // app.UseHsts();
 }
 
-// Remover redirecionamento para HTTPS se não estiver usando HTTPS
-// app.UseHttpsRedirection();
+
+ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseRouting();
