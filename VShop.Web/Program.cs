@@ -60,7 +60,7 @@ builder.Services.AddAuthentication(options =>
 
     options.Authority = builder.Configuration["ServiceUri:IdentityServer"];
     // Define RequireHttpsMetadata baseado no ambiente
-    options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+    options.RequireHttpsMetadata = true; 
     options.GetClaimsFromUserInfoEndpoint = true;
     options.ClientId = "vshop";
     options.ClientSecret = builder.Configuration["Client:Secret"];
@@ -94,7 +94,11 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-app.UseHsts();
+// Configure URLs para HTTPS
+if (builder.Environment.IsProduction() && !string.IsNullOrEmpty(builder.Configuration["PORT"]))
+{
+    builder.WebHost.UseUrls($"https://*:{builder.Configuration["PORT"]}");
+}
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();

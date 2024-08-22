@@ -36,6 +36,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddDefaultTokenProviders();
 
 //configurações dos serviços do IdentityServer
+
 var builderIdentityServer = builder.Services.AddIdentityServer(options =>
 {
     options.Events.RaiseErrorEvents = true;
@@ -43,14 +44,19 @@ var builderIdentityServer = builder.Services.AddIdentityServer(options =>
     options.Events.RaiseFailureEvents = true;
     options.Events.RaiseSuccessEvents = true;
     options.EmitStaticAudienceClaim = true;
-}).AddInMemoryIdentityResources(
-                       IdentityConfiguration.IdentityResources)
-                       .AddInMemoryApiScopes(IdentityConfiguration.ApiScopes)
-                       .AddInMemoryClients(IdentityConfiguration.Clients)
-                       .AddAspNetIdentity<ApplicationUser>();
+})
+.AddInMemoryIdentityResources(IdentityConfiguration.IdentityResources)
+.AddInMemoryApiScopes(IdentityConfiguration.ApiScopes)
+.AddInMemoryClients(IdentityConfiguration.Clients)
+.AddAspNetIdentity<ApplicationUser>();
 
-builderIdentityServer.AddDeveloperSigningCredential();
+builderIdentityServer.AddDeveloperSigningCredential(); // Para desenvolvimento, em produção use certificados válidos
 
+// Configure HTTPS
+if (builder.Environment.IsProduction() && !string.IsNullOrEmpty(builder.Configuration["PORT"]))
+{
+    builder.WebHost.UseUrls($"https://*:{builder.Configuration["PORT"]}");
+}
 builder.Services.AddScoped<IDatabaseSeedInitializer, DatabaseIdentityServerInitializer>();
 builder.Services.AddScoped<IProfileService, ProfileAppService>();
 
@@ -81,11 +87,12 @@ using (var scope = app.Services.CreateScope())
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
+    app.UseHsts();
     app.UseExceptionHandler("/Home/Error");
 }
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseHsts();
+
 app.UseRouting();
 app.UseIdentityServer();
 app.UseAuthorization();
