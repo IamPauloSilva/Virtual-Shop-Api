@@ -96,10 +96,14 @@ builder.Services.AddAuthorization(options =>
 
 var app = builder.Build();
 
-string port = builder.Configuration["PORT"];
-if (builder.Environment.IsProduction() && port is not null)
-    builder.WebHost.UseUrls($"http://*:{port}");
-
+if (builder.Environment.IsProduction())
+{
+    var port = builder.Configuration["PORT"];
+    if (port is not null)
+        builder.WebHost.UseUrls($"http://*:{port}");
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 // Migração automática do banco de dados
 using (var scope = app.Services.CreateScope())
 {
@@ -124,8 +128,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Remove HTTPS redirection if not using HTTPS
-// app.UseHttpsRedirection();
+
+app.UseHttpsRedirection();
 
 app.UseCors("CorsPolicy");
 app.UseRouting();

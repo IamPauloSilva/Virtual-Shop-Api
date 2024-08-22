@@ -101,10 +101,14 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-string port = builder.Configuration["PORT"];
-if (builder.Environment.IsProduction() && port is not null)
-    builder.WebHost.UseUrls($"http://*:{port}");
-
+if (builder.Environment.IsProduction())
+{
+    var port = builder.Configuration["PORT"];
+    if (port is not null)
+        builder.WebHost.UseUrls($"http://*:{port}");
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -112,8 +116,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Remove HTTPS redirection if not using HTTPS
-// app.UseHttpsRedirection();
+
+app.UseHttpsRedirection();
 
 app.UseRouting();
 app.UseAuthentication();

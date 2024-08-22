@@ -52,6 +52,13 @@ builder.Services.AddScoped<IProfileService, ProfileAppService>();
 
 var app = builder.Build();
 
+if (builder.Environment.IsProduction())
+{
+    var port = builder.Configuration["PORT"];
+    if (port is not null)
+        builder.WebHost.UseUrls($"http://*:{port}");
+    
+}
 // Migração automática do banco de dados
 using (var scope = app.Services.CreateScope())
 {
@@ -69,16 +76,17 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // Remover HSTS se não estiver usando HTTPS
-    // app.UseHsts();
+    
+    app.UseHsts();
 }
 
-// Remover redirecionamento para HTTPS se não estiver usando HTTPS
-// app.UseHttpsRedirection();
+
+app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseRouting();
