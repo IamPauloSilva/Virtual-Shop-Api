@@ -3,7 +3,7 @@
 # Serviço VShop.Web
 [services.vshopweb.build]
 builder = "dockerfile"
-dockerfilePath = "./Frontend/VShop.Web/Dockerfile"
+dockerfilePath = "/app/Frontend/VShop.Web/Dockerfile"
 
 [services.vshopweb.deploy]
 startCommand = "./VShop.Web"
@@ -13,7 +13,7 @@ healthcheckPath = "./Frontend/VShop.Web//health"
 # Serviço VShop.IdentityServer
 [services.identityserver.build]
 builder = "dockerfile"
-dockerfilePath = "./Backend/VShop.IdentityServer/Dockerfile"
+dockerfilePath = "/app/Backend/VShop.IdentityServer/Dockerfile"
 
 [services.identityserver.deploy]
 startCommand = "./VShop.IdentityServer"
@@ -23,7 +23,7 @@ healthcheckPath = "./Backend/VShop.IdentityServer//health"
 # Serviço VShop.DiscountApi
 [services.discountapi.build]
 builder = "dockerfile"
-dockerfilePath = "./Backend/VShop.DiscountApi/Dockerfile"
+dockerfilePath = "/app/Backend/VShop.DiscountApi/Dockerfile"
 
 [services.discountapi.deploy]
 startCommand = "./VShop.DiscountApi"
@@ -33,7 +33,7 @@ healthcheckPath = "./Backend/VShop.DiscountApi//health"
 # Serviço VShop.CartApi
 [services.cartapi.build]
 builder = "dockerfile"
-dockerfilePath = "./Backend/VShop.CartApi/Dockerfile"
+dockerfilePath = "/app/Backend/VShop.CartApi/Dockerfile"
 
 [services.cartapi.deploy]
 startCommand = "./VShop.CartApi"
@@ -43,7 +43,7 @@ healthcheckPath = "./Backend/VShop.CartApi//health"
 # Serviço VShop.Products
 [services.products.build]
 builder = "dockerfile"
-dockerfilePath = "./Backend/VShop.Products/Dockerfile"
+dockerfilePath = "/app/Backend/VShop.Products/Dockerfile"
 
 [services.products.deploy]
 startCommand = "./VShop.Products"
