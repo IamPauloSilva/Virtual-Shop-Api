@@ -76,10 +76,10 @@ builder.Services.AddAuthentication(options =>
 
 
 var app = builder.Build();
+string port = builder.Configuration["PORT"];
+if (builder.Environment.IsProduction() && port is not null)
+    builder.WebHost.UseUrls($"http://*:{builder.Configuration["PORT"]}");
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-
-builder.WebHost.UseUrls($"http://*:[**] : {port}");
 
 
 // Configure the HTTP request pipeline.
