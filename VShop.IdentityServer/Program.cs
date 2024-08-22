@@ -8,17 +8,17 @@ using VShop.IdentityServer.SeedDatabase;
 using VShop.IdentityServer.SeedDataBase;
 using VShop.IdentityServer.Services;
 
-
 var builder = WebApplication.CreateBuilder(args);
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-
-
+// Adiciona variáveis de ambiente à configuração
 var envVariables = Environment.GetEnvironmentVariables();
 builder.Configuration.AddInMemoryCollection(envVariables.Cast<DictionaryEntry>()
                                       .ToDictionary(d => d.Key.ToString(),
                                                     d => d.Value.ToString()));
+
 // Register DbContext with MySQL
 var connectionString = builder.Configuration["SQL_CONNECTION_STRING"]
     ?? throw new InvalidOperationException("Connection string 'mysql' not found.");
@@ -27,17 +27,13 @@ var serverVersion = new MySqlServerVersion(new Version(8, 0, 38));
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, serverVersion));
 
-
-
-
-
+// Configura o Identity e IdentityServer
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
 
-//configurações dos serviços do IdentityServer
-
-var builderIdentityServer = builder.Services.AddIdentityServer(options =>
+// Configuração do IdentityServer
+builder.Services.AddIdentityServer(options =>
 {
     options.Events.RaiseErrorEvents = true;
     options.Events.RaiseInformationEvents = true;
@@ -50,21 +46,14 @@ var builderIdentityServer = builder.Services.AddIdentityServer(options =>
 .AddInMemoryClients(IdentityConfiguration.Clients)
 .AddAspNetIdentity<ApplicationUser>();
 
-builderIdentityServer.AddDeveloperSigningCredential(); // Para desenvolvimento, em produção use certificados válidos
+// Usar uma chave de desenvolvimento. Em produção, utilize certificados válidos.
+builder.Services.AddIdentityServer()
+    .AddDeveloperSigningCredential();
 
-// Configure HTTPS
-if (builder.Environment.IsProduction() && !string.IsNullOrEmpty(builder.Configuration["PORT"]))
-{
-    builder.WebHost.UseUrls($"https://*:{builder.Configuration["PORT"]}");
-}
 builder.Services.AddScoped<IDatabaseSeedInitializer, DatabaseIdentityServerInitializer>();
 builder.Services.AddScoped<IProfileService, ProfileAppService>();
 
 var app = builder.Build();
-string port = builder.Configuration["PORT"];
-if (builder.Environment.IsProduction() && port is not null)
-    builder.WebHost.UseUrls($"http://*:{builder.Configuration["PORT"]}");
-
 
 // Migração automática do banco de dados
 using (var scope = app.Services.CreateScope())
@@ -79,20 +68,22 @@ using (var scope = app.Services.CreateScope())
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while migrating or seeding the database.");
-        // Em um cenário de produção, você pode querer encerrar a aplicação aqui
-        // ou lançar a exceção para garantir que erros críticos não passem despercebidos.
         throw;
     }
 }
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseHsts();
     app.UseExceptionHandler("/Home/Error");
+    // Remover HSTS se não estiver usando HTTPS
+    // app.UseHsts();
 }
-app.UseHttpsRedirection();
-app.UseStaticFiles();
 
+// Remover redirecionamento para HTTPS se não estiver usando HTTPS
+// app.UseHttpsRedirection();
+
+app.UseStaticFiles();
 app.UseRouting();
 app.UseIdentityServer();
 app.UseAuthorization();

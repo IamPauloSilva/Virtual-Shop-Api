@@ -59,8 +59,8 @@ builder.Services.AddAuthentication(options =>
     };
 
     options.Authority = builder.Configuration["ServiceUri:IdentityServer"];
-    // Define RequireHttpsMetadata baseado no ambiente
-    options.RequireHttpsMetadata = true; 
+    // Desabilita a exigência de HTTPS
+    options.RequireHttpsMetadata = false;
     options.GetClaimsFromUserInfoEndpoint = true;
     options.ClientId = "vshop";
     options.ClientSecret = builder.Configuration["Client:Secret"];
@@ -85,17 +85,20 @@ if (builder.Environment.IsProduction())
 {
     var port = builder.Configuration["PORT"];
     if (port is not null)
-        builder.WebHost.UseUrls($"http://*:{port}"); 
+        builder.WebHost.UseUrls($"http://*:{port}");
 }
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    // Remover HSTS se não estiver usando HTTPS
+    // app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// Remover redirecionamento para HTTPS se não estiver usando HTTPS
+// app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
