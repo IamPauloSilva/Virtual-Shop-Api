@@ -74,7 +74,7 @@ builder.Services.AddAuthentication(options =>
 
     options.Authority = builder.Configuration["ServiceUri:IdentityServer"];
 
-    // HTTPS configuration: set RequireHttpsMetadata based on environment
+    // Set RequireHttpsMetadata based on environment
     options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
 
     options.GetClaimsFromUserInfoEndpoint = true;
