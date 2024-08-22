@@ -5,12 +5,14 @@ using VShop.Web.Services.ProductService;
 using VShop.Web.Services;
 using VShop.Web.Services.CartService;
 using VShop.Web.Services.CouponService;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Configuração dos clientes HTTP
 builder.Services.AddHttpClient<IProductInterface, ProductService>("ProductApi", c =>
 {
     c.BaseAddress = new Uri(builder.Configuration["ServiceUri:ProductApi"]);
@@ -19,74 +21,67 @@ builder.Services.AddHttpClient<IProductInterface, ProductService>("ProductApi", 
     c.DefaultRequestHeaders.Add("User-Agent", "HttpClientFactory-ProductApi");
 });
 
-builder.Services.AddHttpClient<ICartInterface, CartService>("CartApi",
-    c => c.BaseAddress = new Uri(builder.Configuration["ServiceUri:CartApi"])
-);
-builder.Services.AddHttpClient<ICouponInterface, CouponService>("DiscountApi", c =>
-   c.BaseAddress = new Uri(builder.Configuration["ServiceUri:DiscountApi"])
+builder.Services.AddHttpClient<ICartInterface, CartService>("CartApi", c =>
+    c.BaseAddress = new Uri(builder.Configuration["ServiceUri:CartApi"])
 );
 
+builder.Services.AddHttpClient<ICouponInterface, CouponService>("DiscountApi", c =>
+    c.BaseAddress = new Uri(builder.Configuration["ServiceUri:DiscountApi"])
+);
+
+// Configuração de dependências
 builder.Services.AddScoped<ICouponInterface, CouponService>();
-builder.Services.AddScoped<ICartInterface, CartService>();   
+builder.Services.AddScoped<ICartInterface, CartService>();
 builder.Services.AddScoped<IProductInterface, ProductService>();
 builder.Services.AddScoped<ICategoryInterface, CategoryService>();
 
-
-
+// Configuração da autenticação
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultScheme = "Cookies";
-    options.DefaultChallengeScheme = "oidc";
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
 })
-    .AddCookie("Cookies", c =>
+.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, c =>
+{
+    c.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+    c.Events = new CookieAuthenticationEvents()
     {
-        c.ExpireTimeSpan = TimeSpan.FromMinutes(10);
-        c.Events = new CookieAuthenticationEvents()
+        OnRedirectToAccessDenied = context =>
         {
-            OnRedirectToAccessDenied = (context) =>
-            {
-                context.HttpContext.Response.Redirect(builder.Configuration["ServiceUri:IdentityServer"] + "/Account/AccessDenied");
-                return Task.CompletedTask;
-            }
-        };
-    })
-    .AddOpenIdConnect("oidc", options =>
+            context.HttpContext.Response.Redirect(builder.Configuration["ServiceUri:IdentityServer"] + "/Account/AccessDenied");
+            return Task.CompletedTask;
+        }
+    };
+})
+.AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
+{
+    options.Events.OnRemoteFailure = context =>
     {
-        options.Events.OnRemoteFailure = context =>
-        {
-            context.Response.Redirect("/");
-            context.HandleResponse();
+        context.Response.Redirect("/");
+        context.HandleResponse();
+        return Task.FromResult(0);
+    };
 
-            return Task.FromResult(0);
-        };
-
-        options.Authority = builder.Configuration["ServiceUri:IdentityServer"];
-        options.GetClaimsFromUserInfoEndpoint = true;
-        options.ClientId = "vshop";
-        options.ClientSecret = builder.Configuration["Client:Secret"];
-        options.ResponseType = "code";
-        options.ClaimActions.MapJsonKey("role", "role", "role");
-        options.ClaimActions.MapJsonKey("sub", "sub", "sub");
-        options.TokenValidationParameters.NameClaimType = "name";
-        options.TokenValidationParameters.RoleClaimType = "role";
-        options.Scope.Add("vshop");
-        options.SaveTokens = true;
-    }
-);
-
+    options.Authority = builder.Configuration["ServiceUri:IdentityServer"];
+    options.RequireHttpsMetadata = true; // Assegure que o HTTPS seja usado
+    options.GetClaimsFromUserInfoEndpoint = true;
+    options.ClientId = "vshop";
+    options.ClientSecret = builder.Configuration["Client:Secret"];
+    options.ResponseType = "code";
+    options.ClaimActions.MapJsonKey("role", "role", "role");
+    options.ClaimActions.MapJsonKey("sub", "sub", "sub");
+    options.TokenValidationParameters.NameClaimType = "name";
+    options.TokenValidationParameters.RoleClaimType = "role";
+    options.Scope.Add("vshop");
+    options.SaveTokens = true;
+});
 
 var app = builder.Build();
-string port = builder.Configuration["PORT"];
-if (builder.Environment.IsProduction() && port is not null)
-    builder.WebHost.UseUrls($"http://*:{builder.Configuration["PORT"]}");
-
-
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
