@@ -11,13 +11,13 @@ using VShop.Products.Services.ProductService;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Adiciona variáveis de ambiente à configuração
 var envVariables = Environment.GetEnvironmentVariables();
 builder.Configuration.AddInMemoryCollection(envVariables.Cast<DictionaryEntry>()
                                       .ToDictionary(d => d.Key.ToString(),
                                                     d => d.Value.ToString()));
 
-// Register DbContext with MySQL
+// Registra DbContext com MySQL
 var connectionString = builder.Configuration["SQL_CONNECTION_STRING"]
     ?? throw new InvalidOperationException("Connection string 'mysql' not found.");
 
@@ -25,16 +25,16 @@ var serverVersion = new MySqlServerVersion(new Version(8, 0, 38));
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, serverVersion));
 
-// Configuração do AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile)); // Inclui apenas o perfil de mapeamento
+// Configura AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-// Configuração dos serviços e repositórios
+// Configura serviços e repositórios
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductInterface, ProductService>();
 builder.Services.AddScoped<ICategoryInterface, CategoryService>();
 
-// Configuração da autenticação com JWT
+// Configura autenticação JWT
 builder.Services.AddAuthentication("Bearer")
        .AddJwtBearer("Bearer", options =>
        {
@@ -46,10 +46,10 @@ builder.Services.AddAuthentication("Bearer")
                ValidateIssuerSigningKey = true,
                ValidIssuer = builder.Configuration["VShop.IdentityServer:ApplicationUrl"]
            };
-           options.RequireHttpsMetadata = false;
+           options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
        });
 
-// Configuração de autorização
+// Configura autorização
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("ApiScope", policy =>
@@ -59,7 +59,7 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-// Configuração dos controladores e JSON Options
+// Configura controladores e JSON Options
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -67,7 +67,7 @@ builder.Services.AddControllers()
             ReferenceHandler.IgnoreCycles;
     });
 
-// Configuração do Swagger/OpenAPI
+// Configura Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -107,18 +107,14 @@ if (builder.Environment.IsProduction())
     var port = builder.Configuration["PORT"];
     if (port is not null)
         builder.WebHost.UseUrls($"http://*:{port}");
-    app.UseSwagger();
-    app.UseSwaggerUI();
 }
-// Configure the HTTP request pipeline.
+
+// Swagger apenas para desenvolvimento (opcional)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-
-app.UseHttpsRedirection();
 
 app.UseRouting();
 app.UseAuthentication();
