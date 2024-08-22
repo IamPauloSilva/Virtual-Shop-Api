@@ -13,9 +13,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{E38B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VShop.IdentityServer", "VShop.IdentityServer\VShop.IdentityServer.csproj", "{DF8961A5-9C37-4120-8269-B9A6D9998CC0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VShop.CartApi", "VShop.CartApi\VShop.CartApi.csproj", "{D6109C8D-AB5C-4870-A780-248B3A320E7F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VShop.CartApi", "VShop.CartApi\VShop.CartApi.csproj", "{D6109C8D-AB5C-4870-A780-248B3A320E7F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VShop.DiscountApi", "VShop.DiscountApi\VShop.DiscountApi.csproj", "{4CD8A6FE-365A-4BF7-B3A6-626DD59BED91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VShop.DiscountApi", "VShop.DiscountApi\VShop.DiscountApi.csproj", "{4CD8A6FE-365A-4BF7-B3A6-626DD59BED91}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{47C442CD-C184-481B-AFAC-8A6DE07DF5B4}"
+	ProjectSection(SolutionItems) = preProject
+		railway.toml = railway.toml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
