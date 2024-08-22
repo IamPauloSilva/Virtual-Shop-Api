@@ -1,6 +1,7 @@
 using Duende.IdentityServer.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Collections;
 using VShop.IdentityServer.Configuration;
 using VShop.IdentityServer.Data;
 using VShop.IdentityServer.SeedDatabase;
@@ -9,15 +10,26 @@ using VShop.IdentityServer.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-var mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 
+
+var envVariables = Environment.GetEnvironmentVariables();
+builder.Configuration.AddInMemoryCollection(envVariables.Cast<DictionaryEntry>()
+                                      .ToDictionary(d => d.Key.ToString(),
+                                                    d => d.Value.ToString()));
+// Register DbContext with MySQL
+var connectionString = builder.Configuration["SQL_CONNECTION_STRING"]
+    ?? throw new InvalidOperationException("Connection string 'mysql' not found.");
+
+var serverVersion = new MySqlServerVersion(new Version(8, 0, 38));
 builder.Services.AddDbContext<AppDbContext>(options =>
-                  options.UseMySql(mySqlConnection,
-                    ServerVersion.AutoDetect(mySqlConnection)));
+    options.UseMySql(connectionString, serverVersion));
+
+
+
+
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>()
@@ -43,7 +55,29 @@ builder.Services.AddScoped<IDatabaseSeedInitializer, DatabaseIdentityServerIniti
 builder.Services.AddScoped<IProfileService, ProfileAppService>();
 
 var app = builder.Build();
+string port = builder.Configuration["PORT"];
+if (builder.Environment.IsProduction() && port is not null)
+    builder.WebHost.UseUrls($"http://*:{builder.Configuration["PORT"]}");
 
+
+// Migração automática do banco de dados
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        context.Database.Migrate(); // Aplica as migrações pendentes
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating or seeding the database.");
+        // Em um cenário de produção, você pode querer encerrar a aplicação aqui
+        // ou lançar a exceção para garantir que erros críticos não passem despercebidos.
+        throw;
+    }
+}
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
