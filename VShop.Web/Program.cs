@@ -63,7 +63,7 @@ builder.Services.AddAuthentication(options =>
     };
 
     options.Authority = builder.Configuration["ServiceUri:IdentityServer"];
-    options.RequireHttpsMetadata = true; // Assegure que o HTTPS seja usado
+    options.RequireHttpsMetadata = !builder.Environment.IsDevelopment(); // Exigir HTTPS apenas em produção
     options.GetClaimsFromUserInfoEndpoint = true;
     options.ClientId = "vshop";
     options.ClientSecret = builder.Configuration["Client:Secret"];
