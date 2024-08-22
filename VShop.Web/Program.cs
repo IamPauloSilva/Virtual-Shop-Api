@@ -12,7 +12,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Configuração dos clientes HTTP
 builder.Services.AddHttpClient<IProductInterface, ProductService>("ProductApi", c =>
 {
     c.BaseAddress = new Uri(builder.Configuration["ServiceUri:ProductApi"]);
@@ -21,21 +20,18 @@ builder.Services.AddHttpClient<IProductInterface, ProductService>("ProductApi", 
     c.DefaultRequestHeaders.Add("User-Agent", "HttpClientFactory-ProductApi");
 });
 
-builder.Services.AddHttpClient<ICartInterface, CartService>("CartApi", c =>
-    c.BaseAddress = new Uri(builder.Configuration["ServiceUri:CartApi"])
+builder.Services.AddHttpClient<ICartInterface, CartService>("CartApi",
+    c => c.BaseAddress = new Uri(builder.Configuration["ServiceUri:CartApi"])
 );
-
 builder.Services.AddHttpClient<ICouponInterface, CouponService>("DiscountApi", c =>
-    c.BaseAddress = new Uri(builder.Configuration["ServiceUri:DiscountApi"])
+   c.BaseAddress = new Uri(builder.Configuration["ServiceUri:DiscountApi"])
 );
 
-// Configuração de dependências
 builder.Services.AddScoped<ICouponInterface, CouponService>();
 builder.Services.AddScoped<ICartInterface, CartService>();
 builder.Services.AddScoped<IProductInterface, ProductService>();
 builder.Services.AddScoped<ICategoryInterface, CategoryService>();
 
-// Configuração da autenticação
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -63,7 +59,8 @@ builder.Services.AddAuthentication(options =>
     };
 
     options.Authority = builder.Configuration["ServiceUri:IdentityServer"];
-    options.RequireHttpsMetadata = !builder.Environment.IsDevelopment(); // Exigir HTTPS apenas em produção
+    // Define RequireHttpsMetadata baseado no ambiente
+    options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
     options.GetClaimsFromUserInfoEndpoint = true;
     options.ClientId = "vshop";
     options.ClientSecret = builder.Configuration["Client:Secret"];
@@ -78,6 +75,13 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
+if (builder.Environment.IsProduction())
+{
+    var port = builder.Configuration["PORT"];
+    if (port is not null)
+        builder.WebHost.UseUrls($"http://*:{port}"); 
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -87,9 +91,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
