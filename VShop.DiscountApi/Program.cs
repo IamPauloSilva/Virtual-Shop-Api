@@ -8,7 +8,6 @@ using VShop.DiscountApi.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -27,27 +26,29 @@ builder.Services.AddSwaggerGen(c =>
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
-         {
+        {
             new OpenApiSecurityScheme
             {
-               Reference = new OpenApiReference
-               {
-                  Type = ReferenceType.SecurityScheme,
-                  Id = "Bearer"
-               },
-               Scheme = "oauth2",
-               Name = "Bearer",
-               In= ParameterLocation.Header
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header
             },
-            new List<string> ()
-         }
+            new List<string>()
+        }
     });
 });
 
+// Adiciona variáveis de ambiente à configuração
 var envVariables = Environment.GetEnvironmentVariables();
 builder.Configuration.AddInMemoryCollection(envVariables.Cast<DictionaryEntry>()
                                       .ToDictionary(d => d.Key.ToString(),
                                                     d => d.Value.ToString()));
+
 // Register DbContext with MySQL
 var connectionString = builder.Configuration["SQL_CONNECTION_STRING"]
     ?? throw new InvalidOperationException("Connection string 'mysql' not found.");
@@ -56,11 +57,11 @@ var serverVersion = new MySqlServerVersion(new Version(8, 0, 38));
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, serverVersion));
 
-
-
+// Configurações de AutoMapper e repositório
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<ICouponRepository, CouponRepository>();
 
+// Configuração de CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
@@ -69,18 +70,21 @@ builder.Services.AddCors(options =>
                           .AllowAnyHeader());
 });
 
+// Configuração da autenticação com JWT
 builder.Services.AddAuthentication("Bearer")
        .AddJwtBearer("Bearer", options =>
        {
-           options.Authority =
-             builder.Configuration["VShop.IdentityServer:ApplicationUrl"];
-
+           options.Authority = builder.Configuration["VShop.IdentityServer:ApplicationUrl"];
            options.TokenValidationParameters = new TokenValidationParameters
            {
-               ValidateAudience = false
+               ValidateIssuer = true,
+               ValidateAudience = false,
+               ValidateIssuerSigningKey = true,
+               ValidIssuer = builder.Configuration["VShop.IdentityServer:ApplicationUrl"]
            };
        });
 
+// Configuração de autorização
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("ApiScope", policy =>
@@ -92,11 +96,9 @@ builder.Services.AddAuthorization(options =>
 
 var app = builder.Build();
 
-
 string port = builder.Configuration["PORT"];
 if (builder.Environment.IsProduction() && port is not null)
-    builder.WebHost.UseUrls($"http://*:{builder.Configuration["PORT"]}");
-
+    builder.WebHost.UseUrls($"http://*:{port}");
 
 // Migração automática do banco de dados
 using (var scope = app.Services.CreateScope())
@@ -111,8 +113,6 @@ using (var scope = app.Services.CreateScope())
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while migrating or seeding the database.");
-        // Em um cenário de produção, você pode querer encerrar a aplicação aqui
-        // ou lançar a exceção para garantir que erros críticos não passem despercebidos.
         throw;
     }
 }
@@ -124,7 +124,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Remove HTTPS redirection if not using HTTPS
+// app.UseHttpsRedirection();
+
 app.UseCors("CorsPolicy");
 app.UseRouting();
 

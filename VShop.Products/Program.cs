@@ -11,13 +11,12 @@ using VShop.Products.Services.ProductService;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // Add services to the container.
-
 var envVariables = Environment.GetEnvironmentVariables();
 builder.Configuration.AddInMemoryCollection(envVariables.Cast<DictionaryEntry>()
                                       .ToDictionary(d => d.Key.ToString(),
                                                     d => d.Value.ToString()));
+
 // Register DbContext with MySQL
 var connectionString = builder.Configuration["SQL_CONNECTION_STRING"]
     ?? throw new InvalidOperationException("Connection string 'mysql' not found.");
@@ -26,27 +25,30 @@ var serverVersion = new MySqlServerVersion(new Version(8, 0, 38));
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, serverVersion));
 
+// Configuração do AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingProfile)); // Inclui apenas o perfil de mapeamento
 
-builder.Services.AddAutoMapper(typeof(Program));
-builder.Services.AddAutoMapper(typeof(MappingProfile));
-
+// Configuração dos serviços e repositórios
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductInterface, ProductService>();
 builder.Services.AddScoped<ICategoryInterface, CategoryService>();
 
+// Configuração da autenticação com JWT
 builder.Services.AddAuthentication("Bearer")
        .AddJwtBearer("Bearer", options =>
        {
-           options.Authority =
-             builder.Configuration["VShop.IdentityServer:ApplicationUrl"];
-
+           options.Authority = builder.Configuration["VShop.IdentityServer:ApplicationUrl"];
            options.TokenValidationParameters = new TokenValidationParameters
            {
-               ValidateAudience = false
+               ValidateIssuer = true,
+               ValidateAudience = false,
+               ValidateIssuerSigningKey = true,
+               ValidIssuer = builder.Configuration["VShop.IdentityServer:ApplicationUrl"]
            };
        });
 
+// Configuração de autorização
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("ApiScope", policy =>
@@ -56,6 +58,7 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
+// Configuração dos controladores e JSON Options
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -63,9 +66,8 @@ builder.Services.AddControllers()
             ReferenceHandler.IgnoreCycles;
     });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Configuração do Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "VShop.ProductApi", Version = "v1" });
@@ -97,14 +99,11 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
 var app = builder.Build();
+
 string port = builder.Configuration["PORT"];
 if (builder.Environment.IsProduction() && port is not null)
-    builder.WebHost.UseUrls($"http://*:{builder.Configuration["PORT"]}");
-
-
-
+    builder.WebHost.UseUrls($"http://*:{port}");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -113,8 +112,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Remove HTTPS redirection if not using HTTPS
+// app.UseHttpsRedirection();
 
+app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
