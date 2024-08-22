@@ -36,18 +36,20 @@ builder.Services.AddScoped<ICategoryInterface, CategoryService>();
 
 // Configura autenticação JWT
 builder.Services.AddAuthentication("Bearer")
-       .AddJwtBearer("Bearer", options =>
-       {
-           options.Authority = builder.Configuration["VShop.IdentityServer:ApplicationUrl"];
-           options.TokenValidationParameters = new TokenValidationParameters
-           {
-               ValidateIssuer = true,
-               ValidateAudience = false,
-               ValidateIssuerSigningKey = true,
-               ValidIssuer = builder.Configuration["VShop.IdentityServer:ApplicationUrl"]
-           };
-           options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
-       });
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.Authority = builder.Configuration["VShop.IdentityServer:ApplicationUrl"];
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = false,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["VShop.IdentityServer:ApplicationUrl"]
+        };
+
+        // Desabilita a exigência de HTTPS apenas no ambiente de desenvolvimento
+        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+    });
 
 // Configura autorização
 builder.Services.AddAuthorization(options =>
