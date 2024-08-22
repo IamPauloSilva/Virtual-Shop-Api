@@ -32,6 +32,7 @@ builder.Services.AddScoped<IProductInterface, ProductService>();
 builder.Services.AddScoped<ICategoryInterface, CategoryService>();
 
 
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = "Cookies";
@@ -75,6 +76,11 @@ builder.Services.AddAuthentication(options =>
 
 
 var app = builder.Build();
+
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+
+builder.WebHost.UseUrls($"http://*:[**] : {port}");
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

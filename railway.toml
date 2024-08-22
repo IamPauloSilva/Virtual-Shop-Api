@@ -1,0 +1,8 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "RAILWAY_DOCKERFILE_PATH"
+
+[deploy]
+startCommand = "./VShop"
+restartPolicyType = "always"
+healthcheckPath = "/heath"
