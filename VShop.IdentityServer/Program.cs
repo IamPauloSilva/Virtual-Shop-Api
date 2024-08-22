@@ -44,11 +44,8 @@ builder.Services.AddIdentityServer(options =>
 .AddInMemoryIdentityResources(IdentityConfiguration.IdentityResources)
 .AddInMemoryApiScopes(IdentityConfiguration.ApiScopes)
 .AddInMemoryClients(IdentityConfiguration.Clients)
-.AddAspNetIdentity<ApplicationUser>();
-
-// Usar uma chave de desenvolvimento. Em produção, utilize certificados válidos.
-builder.Services.AddIdentityServer()
-    .AddDeveloperSigningCredential();
+.AddAspNetIdentity<ApplicationUser>()
+.AddDeveloperSigningCredential(); // Para desenvolvimento, em produção use certificados válidos
 
 builder.Services.AddScoped<IDatabaseSeedInitializer, DatabaseIdentityServerInitializer>();
 builder.Services.AddScoped<IProfileService, ProfileAppService>();
