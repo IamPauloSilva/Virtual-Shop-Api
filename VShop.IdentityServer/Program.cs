@@ -85,7 +85,7 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
+app.UseHsts();
 app.UseRouting();
 app.UseIdentityServer();
 app.UseAuthorization();

@@ -104,24 +104,7 @@ if (builder.Environment.IsProduction() && port is not null)
     builder.WebHost.UseUrls($"http://*:{builder.Configuration["PORT"]}");
 
 
-// Migração automática do banco de dados
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var context = services.GetRequiredService<AppDbContext>();
-        context.Database.Migrate(); // Aplica as migrações pendentes
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while migrating or seeding the database.");
-        // Em um cenário de produção, você pode querer encerrar a aplicação aqui
-        // ou lançar a exceção para garantir que erros críticos não passem despercebidos.
-        throw;
-    }
-}
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
