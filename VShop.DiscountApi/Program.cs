@@ -82,6 +82,7 @@ builder.Services.AddAuthentication("Bearer")
                ValidateIssuerSigningKey = true,
                ValidIssuer = builder.Configuration["VShop.IdentityServer:ApplicationUrl"]
            };
+           options.RequireHttpsMetadata = false;
        });
 
 // Configuração de autorização

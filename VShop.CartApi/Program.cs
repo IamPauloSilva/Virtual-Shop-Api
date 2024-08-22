@@ -84,6 +84,7 @@ builder.Services.AddAuthentication("Bearer")
                ValidIssuer = builder.Configuration["VShop.IdentityServer:ApplicationUrl"],
                ValidAudience = builder.Configuration["VShop.IdentityServer:ApplicationUrl"]
            };
+           options.RequireHttpsMetadata = false;
        });
 
 // Configuração de autorização
