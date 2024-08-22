@@ -92,8 +92,8 @@ if (builder.Environment.IsProduction())
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // Remover HSTS se não estiver usando HTTPS
-    // app.UseHsts();
+    
+    app.UseHsts();
 }
 
 
