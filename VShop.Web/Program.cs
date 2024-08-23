@@ -52,11 +52,16 @@ builder.Services.AddAuthentication(options =>
 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, c =>
 {
     c.ExpireTimeSpan = TimeSpan.FromMinutes(10);
-    c.Events = new CookieAuthenticationEvents()
+    c.Events = new CookieAuthenticationEvents
     {
         OnRedirectToAccessDenied = context =>
         {
             context.HttpContext.Response.Redirect(builder.Configuration["ServiceUri:IdentityServer"] + "/Account/AccessDenied");
+            return Task.CompletedTask;
+        },
+        OnRedirectToLogin = context =>
+        {
+            context.HttpContext.Response.Redirect(builder.Configuration["ServiceUri:IdentityServer"] + "/Account/Login?ReturnUrl=" + context.Request.Path);
             return Task.CompletedTask;
         }
     };
@@ -73,11 +78,8 @@ builder.Services.AddAuthentication(options =>
     };
 
     // Ensure HTTPS in production
-    options.Authority = builder.Environment.IsDevelopment()
-        ? builder.Configuration["ServiceUri:IdentityServer"]
-        : new Uri(builder.Configuration["ServiceUri:IdentityServer"]).ToString(); // Ensure this uses HTTPS in production
-
-    options.RequireHttpsMetadata = !builder.Environment.IsDevelopment(); // Require HTTPS in non-development environments
+    options.Authority = builder.Configuration["ServiceUri:IdentityServer"];
+    options.RequireHttpsMetadata = true; // Require HTTPS
 
     options.GetClaimsFromUserInfoEndpoint = true;
     options.ClientId = "vshop";
@@ -90,7 +92,6 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("vshop");
     options.SaveTokens = true;
 });
-
 
 // Session setup
 builder.Services.AddSession(options =>
