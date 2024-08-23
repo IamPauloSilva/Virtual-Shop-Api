@@ -22,98 +22,98 @@ namespace VShop.CartApi.Migrations
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
             modelBuilder.Entity("VShop.CartApi.Models.CartHeader", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+                MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CouponCode")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                b.Property<string>("CouponCode")
+                    .HasMaxLength(100)
+                    .HasColumnType("varchar(100)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                b.Property<string>("UserId")
+                    .IsRequired()
+                    .HasMaxLength(255)
+                    .HasColumnType("varchar(255)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("CartHeaders");
-                });
-
-            modelBuilder.Entity("VShop.CartApi.Models.CartItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CartHeaderId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("CartItems");
-                });
-
-            modelBuilder.Entity("VShop.CartApi.Models.Product", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CategoryName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("ImageURL")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<decimal>("Price")
-                        .HasPrecision(12, 2)
-                        .HasColumnType("decimal(12,2)");
-
-                    b.Property<long>("Stock")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Products");
-                });
+                b.ToTable("CartHeaders");
+            });
 
             modelBuilder.Entity("VShop.CartApi.Models.CartItem", b =>
-                {
-                    b.HasOne("VShop.CartApi.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    b.Navigation("Product");
-                });
+                MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                b.Property<int>("CartHeaderId")
+                    .HasColumnType("int");
+
+                b.Property<int>("ProductId")
+                    .HasColumnType("int");
+
+                b.Property<int>("Quantity")
+                    .HasColumnType("int");
+
+                b.HasKey("Id");
+
+                b.HasIndex("ProductId");
+
+                b.ToTable("CartItems");
+            });
+
+            modelBuilder.Entity("VShop.CartApi.Models.CartProduct", b =>
+            {
+                b.Property<int>("Id")
+                    .HasColumnType("int");
+
+                b.Property<string>("CategoryName")
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnType("varchar(100)");
+
+                b.Property<string>("Description")
+                    .IsRequired()
+                    .HasMaxLength(255)
+                    .HasColumnType("varchar(255)");
+
+                b.Property<string>("ImageURL")
+                    .IsRequired()
+                    .HasMaxLength(255)
+                    .HasColumnType("varchar(255)");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnType("varchar(100)");
+
+                b.Property<decimal>("Price")
+                    .HasPrecision(12, 2)
+                    .HasColumnType("decimal(12,2)");
+
+                b.Property<long>("Stock")
+                    .HasColumnType("bigint");
+
+                b.HasKey("Id");
+
+                b.ToTable("CartProducts");
+            });
+
+            modelBuilder.Entity("VShop.CartApi.Models.CartItem", b =>
+            {
+                b.HasOne("VShop.CartApi.Models.CartProduct", "Product")
+                    .WithMany()
+                    .HasForeignKey("ProductId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.Navigation("Product");
+            });
 #pragma warning restore 612, 618
         }
     }

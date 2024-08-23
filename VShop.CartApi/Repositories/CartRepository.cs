@@ -42,7 +42,7 @@ public class CartRepository : ICartRepository
 
         cart.CartItems = _context.CartItems
                         .Where(c => c.CartHeaderId == cart.CartHeader.Id)
-                        .Include(c => c.Product);
+                        .Include(c => c.CartProduct);
 
         return _mapper.Map<CartDTO>(cart);
     }
@@ -111,14 +111,14 @@ public class CartRepository : ICartRepository
         {
             
             cart.CartItems.FirstOrDefault().CartHeaderId = cartHeader.Id;
-            cart.CartItems.FirstOrDefault().Product = null;
+            cart.CartItems.FirstOrDefault().CartProduct = null;
             _context.CartItems.Add(cart.CartItems.FirstOrDefault());
             await _context.SaveChangesAsync();
         }
         else
         {
             
-            cart.CartItems.FirstOrDefault().Product = null;
+            cart.CartItems.FirstOrDefault().CartProduct = null;
             cart.CartItems.FirstOrDefault().Quantity += cartItem.Quantity;
             cart.CartItems.FirstOrDefault().Id = cartItem.Id;
             cart.CartItems.FirstOrDefault().CartHeaderId = cartItem.CartHeaderId;
@@ -134,7 +134,7 @@ public class CartRepository : ICartRepository
         await _context.SaveChangesAsync();
 
         cart.CartItems.FirstOrDefault().CartHeaderId = cart.CartHeader.Id;
-        cart.CartItems.FirstOrDefault().Product = null;
+        cart.CartItems.FirstOrDefault().CartProduct = null;
 
         _context.CartItems.Add(cart.CartItems.FirstOrDefault());
 
@@ -144,13 +144,13 @@ public class CartRepository : ICartRepository
     private async Task SaveProductInDataBase(CartDTO cartDto, Cart cart)
     {
         
-        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id ==
+        var product = await _context.CartProducts.FirstOrDefaultAsync(p => p.Id ==
                             cartDto.CartItems.FirstOrDefault().ProductId);
 
        
         if (product is null)
         {
-            _context.Products.Add(cart.CartItems.FirstOrDefault().Product);
+            _context.CartProducts.Add(cart.CartItems.FirstOrDefault().CartProduct);
             await _context.SaveChangesAsync();
         }
     }

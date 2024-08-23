@@ -32,7 +32,7 @@ namespace VShop.CartApi.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Products",
+                name: "CartProducts",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false),
@@ -49,7 +49,7 @@ namespace VShop.CartApi.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Products", x => x.Id);
+                    table.PrimaryKey("PK_CartProducts", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -67,9 +67,9 @@ namespace VShop.CartApi.Migrations
                 {
                     table.PrimaryKey("PK_CartItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CartItems_Products_ProductId",
+                        name: "FK_CartItems_CartProducts_ProductId",
                         column: x => x.ProductId,
-                        principalTable: "Products",
+                        principalTable: "CartProducts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -91,7 +91,7 @@ namespace VShop.CartApi.Migrations
                 name: "CartItems");
 
             migrationBuilder.DropTable(
-                name: "Products");
+                name: "CartProducts");
         }
     }
 }

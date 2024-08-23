@@ -1,6 +1,6 @@
 ﻿namespace VShop.CartApi.Models;
 
-public class Product
+public class CartProduct
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;

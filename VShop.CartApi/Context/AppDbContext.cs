@@ -6,7 +6,7 @@ namespace VShop.CartApi.Context;
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-    public DbSet<Product>? Products { get; set; }
+    public DbSet<CartProduct>? CartProducts { get; set; }
     public DbSet<CartItem> CartItems { get; set; }
     public DbSet<CartHeader> CartHeaders { get; set; }
 
@@ -14,35 +14,35 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder mb)
     {
         
-        mb.Entity<Product>()
+        mb.Entity<CartProduct>()
             .HasKey(c => c.Id);
 
         
-        mb.Entity<Product>().
+        mb.Entity<CartProduct>().
            Property(c => c.Id)
             .ValueGeneratedNever();
 
-        mb.Entity<Product>().
+        mb.Entity<CartProduct>().
            Property(c => c.Name).
              HasMaxLength(100).
                IsRequired();
 
-        mb.Entity<Product>().
+        mb.Entity<CartProduct>().
           Property(c => c.Description).
                HasMaxLength(255).
                    IsRequired();
 
-        mb.Entity<Product>().
+        mb.Entity<CartProduct>().
           Property(c => c.ImageURL).
               HasMaxLength(255).
                   IsRequired();
 
-        mb.Entity<Product>().
+        mb.Entity<CartProduct>().
            Property(c => c.CategoryName).
                HasMaxLength(100).
                 IsRequired();
 
-        mb.Entity<Product>().
+        mb.Entity<CartProduct>().
            Property(c => c.Price).
              HasPrecision(12, 2);
 
