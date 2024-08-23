@@ -70,16 +70,14 @@ builder.Services.AddAuthentication(options =>
 {
     options.Events.OnRemoteFailure = context =>
     {
-        // Log the failure for investigation
         Console.WriteLine(context.Failure?.Message);
         context.Response.Redirect("/");
         context.HandleResponse();
         return Task.CompletedTask;
     };
 
-    // Ensure HTTPS
     options.Authority = builder.Configuration["ServiceUri:IdentityServer"];
-    options.RequireHttpsMetadata = true; // Enforce HTTPS
+    options.RequireHttpsMetadata = true; // Mantenha HTTPS para comunicação externa
 
     options.GetClaimsFromUserInfoEndpoint = true;
     options.ClientId = "vshop";

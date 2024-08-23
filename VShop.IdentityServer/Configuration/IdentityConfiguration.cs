@@ -45,8 +45,8 @@ public class IdentityConfiguration
                     ClientId = "vshop",
                     ClientSecrets = { new Secret("abracadabra#simsalabim".Sha256())},
                     AllowedGrantTypes = GrantTypes.Code, 
-                    RedirectUris = {"https://vshopweb-production.up.railway.app/signin-oidc"},
-                    PostLogoutRedirectUris = {"https://vshopweb-production.up.railway.app/signout-callback-oidc"},
+                    RedirectUris = {"http://vshopweb.railway.internal"},
+                    PostLogoutRedirectUris = {"http://vshopweb.railway.internal"},
                     AllowedScopes = new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,

@@ -66,10 +66,17 @@ var app = builder.Build();
 if (app.Environment.IsProduction())
 {
     var port = builder.Configuration["PORT"];
-    if (port is not null)
+    if (!string.IsNullOrEmpty(port))
     {
-        app.Urls.Add($"http://*:{port}"); // Use HTTPS if available
+        // Use HTTPS for production
+        app.Urls.Add($"https://*:{port}");
     }
+}
+else
+{
+    var port = builder.Configuration["PORT"];
+    // For development or other environments
+    app.Urls.Add($"http://*:{port}");
 }
 
 // Migração automática do banco de dados
