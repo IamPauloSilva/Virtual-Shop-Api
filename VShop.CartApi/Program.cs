@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Collections;
+using System.Text.Json.Serialization;
 using VShop.CartApi.Context;
 using VShop.CartApi.Repositories;
 
@@ -10,15 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-
+// Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "VShop.CartApi", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "VShop.ProductApi", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = @"'Bearer' [space] seu token",
+        Description = @"'Bearer' [space] your token",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
@@ -27,20 +27,20 @@ builder.Services.AddSwaggerGen(c =>
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
-        {
+         {
             new OpenApiSecurityScheme
             {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                },
-                Scheme = "oauth2",
-                Name = "Bearer",
-                In = ParameterLocation.Header
+               Reference = new OpenApiReference
+               {
+                  Type = ReferenceType.SecurityScheme,
+                  Id = "Bearer"
+               },
+               Scheme = "oauth2",
+               Name = "Bearer",
+               In = ParameterLocation.Header
             },
-            new List<string>()
-        }
+            new List<string> ()
+         }
     });
 });
 
@@ -71,23 +71,24 @@ builder.Services.AddCors(options =>
                           .AllowAnyHeader());
 });
 
-// Configuração da autenticação com JWT
+// Configure authentication JWT
 builder.Services.AddAuthentication("Bearer")
-       .AddJwtBearer("Bearer", options =>
-       {
-           options.Authority = builder.Configuration["VShop.IdentityServer:ApplicationUrl"];
-           options.TokenValidationParameters = new TokenValidationParameters
-           {
-               ValidateAudience = false,
-               ValidateIssuer = true,
-               ValidateIssuerSigningKey = true,
-               ValidIssuer = builder.Configuration["VShop.IdentityServer:ApplicationUrl"],
-               ValidAudience = builder.Configuration["VShop.IdentityServer:ApplicationUrl"]
-           };
-           options.RequireHttpsMetadata = false;
-       });
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.Authority = builder.Configuration["VShop.IdentityServer:ApplicationUrl"];
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = false,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["VShop.IdentityServer:ApplicationUrl"]
+        };
 
-// Configuração de autorização
+        // Disable HTTPS requirement for development environment
+        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+    });
+
+// Configure authorization
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("ApiScope", policy =>
@@ -96,6 +97,14 @@ builder.Services.AddAuthorization(options =>
         policy.RequireClaim("scope", "vshop");
     });
 });
+
+// Configure controllers and JSON options
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler =
+            ReferenceHandler.IgnoreCycles;
+    });
 
 var app = builder.Build();
 if (builder.Environment.IsProduction())

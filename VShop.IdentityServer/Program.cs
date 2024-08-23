@@ -1,4 +1,5 @@
 using Duende.IdentityServer.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
@@ -47,6 +48,21 @@ builder.Services.AddIdentityServer(options =>
 .AddAspNetIdentity<ApplicationUser>()
 .AddDeveloperSigningCredential(); // Para desenvolvimento, em produção use certificados válidos
 
+// Configuração do Middleware de autenticação com cookies
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "YourAppCookie"; // Nome do cookie
+        options.Cookie.SameSite = SameSiteMode.None; // Define SameSite como None
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Força o uso de HTTPS
+        options.Cookie.HttpOnly = true; // Define o cookie como HttpOnly
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(20); // Tempo de expiração do cookie
+        options.SlidingExpiration = true; // Expiração deslizante
+        options.LoginPath = "/Account/Login"; // Caminho para a página de login
+        options.LogoutPath = "/Account/Logout"; // Caminho para a página de logout
+        options.AccessDeniedPath = "/Account/AccessDenied"; // Caminho para acesso negado
+    });
+
 // Serviços personalizados
 builder.Services.AddScoped<IDatabaseSeedInitializer, DatabaseIdentityServerInitializer>();
 builder.Services.AddScoped<IProfileService, ProfileAppService>();
@@ -91,6 +107,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();  // Apenas habilitado para produção
 app.UseStaticFiles();
 app.UseRouting();
+app.UseAuthentication(); // Adiciona o middleware de autenticação
 app.UseIdentityServer();
 app.UseAuthorization();
 
