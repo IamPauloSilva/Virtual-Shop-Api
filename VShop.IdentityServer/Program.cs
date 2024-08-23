@@ -18,8 +18,8 @@ builder.Services.AddControllersWithViews();
 
 // Configuração do armazenamento das chaves de proteção de dados
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo("/path/to/persistent/storage")) // Use um diretório persistente
-    .ProtectKeysWithDpapi(); // Configure criptografia para as chaves
+    .PersistKeysToFileSystem(new DirectoryInfo("./VShop.IdentityServer/keys")) // Use um diretório persistente acessível
+    .ProtectKeysWithDpapi(); // Configure criptografia para as chaves, se necessário
 
 // Configuração do DbContext e IdentityServer
 var connectionString = builder.Configuration["SQL_CONNECTION_STRING"]
@@ -32,6 +32,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
+// Configuração do IdentityServer
 builder.Services.AddIdentityServer(options =>
 {
     options.Events.RaiseErrorEvents = true;
@@ -49,7 +50,7 @@ builder.Services.AddIdentityServer(options =>
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.SameSite = SameSiteMode.None;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Always use HTTPS
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Sempre use HTTPS
 });
 builder.Services.Configure<IdentityServerOptions>(options =>
 {
@@ -68,7 +69,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts(); // Enforce HTTP Strict Transport Security
 }
-app.UseHttpsRedirection(); // Ensure HTTPS redirection
+app.UseHttpsRedirection(); // Assegure redirecionamento para HTTPS
 app.UseStaticFiles();
 app.UseRouting();
 app.UseIdentityServer();
