@@ -54,21 +54,21 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.Configure<IdentityServerOptions>(options =>
 {
     options.Authentication.CookieSameSiteMode = SameSiteMode.None;
-    
 });
+
 // Adiciona serviços personalizados
 builder.Services.AddScoped<IDatabaseSeedInitializer, DatabaseIdentityServerInitializer>();
 builder.Services.AddScoped<IProfileService, ProfileAppService>();
 
 var app = builder.Build();
 
-// Configuração para produção
+// Configure the application for production environment
 if (app.Environment.IsProduction())
 {
     var port = builder.Configuration["PORT"];
     if (port is not null)
     {
-        app.Urls.Add($"http://*:{port}");
+        app.Urls.Add($"http://*:{port}"); // Use HTTPS if available
     }
 }
 
@@ -89,13 +89,12 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Configure o pipeline HTTP
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-app.UseHsts();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
