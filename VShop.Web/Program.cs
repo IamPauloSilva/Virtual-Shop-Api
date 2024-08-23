@@ -18,7 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// HttpClient for Product API
+// HttpClient configurations
 builder.Services.AddHttpClient<IProductInterface, ProductService>("ProductApi", c =>
 {
     c.BaseAddress = new Uri(builder.Configuration["ServiceUri:ProductApi"]);
@@ -27,12 +27,10 @@ builder.Services.AddHttpClient<IProductInterface, ProductService>("ProductApi", 
     c.DefaultRequestHeaders.Add("User-Agent", "HttpClientFactory-ProductApi");
 });
 
-// HttpClient for Cart API
 builder.Services.AddHttpClient<ICartInterface, CartService>("CartApi",
     c => c.BaseAddress = new Uri(builder.Configuration["ServiceUri:CartApi"])
 );
 
-// HttpClient for Discount API
 builder.Services.AddHttpClient<ICouponInterface, CouponService>("DiscountApi", c =>
    c.BaseAddress = new Uri(builder.Configuration["ServiceUri:DiscountApi"])
 );
@@ -77,7 +75,7 @@ builder.Services.AddAuthentication(options =>
     };
 
     options.Authority = builder.Configuration["ServiceUri:IdentityServer"];
-    options.RequireHttpsMetadata = true; // Mantenha HTTPS para comunicação externa
+    options.RequireHttpsMetadata = true; // Ensure HTTPS for external communication
 
     options.GetClaimsFromUserInfoEndpoint = true;
     options.ClientId = "vshop";
@@ -100,24 +98,14 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-// Configure the application for production environment
-if (app.Environment.IsProduction())
-{
-    var port = Environment.GetEnvironmentVariable("PORT");
-    if (!string.IsNullOrEmpty(port))
-    {
-        app.Urls.Add($"http://*:{port}");
-    }
-}
-
 // Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    app.UseHsts(); // Enforce HTTP Strict Transport Security
 }
 
-app.UseHttpsRedirection();
+app.UseHttpsRedirection(); // Ensure HTTPS redirection
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();

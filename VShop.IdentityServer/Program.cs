@@ -18,8 +18,8 @@ builder.Services.AddControllersWithViews();
 
 // Configuração do armazenamento das chaves de proteção de dados
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo("./VShop.IdentityServer/keys"))
-    .SetApplicationName("IdentityServer");
+    .PersistKeysToFileSystem(new DirectoryInfo("/path/to/persistent/storage")) // Use um diretório persistente
+    .ProtectKeysWithDpapi(); // Configure criptografia para as chaves
 
 // Configuração do DbContext e IdentityServer
 var connectionString = builder.Configuration["SQL_CONNECTION_STRING"]
@@ -49,7 +49,7 @@ builder.Services.AddIdentityServer(options =>
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.SameSite = SameSiteMode.None;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Always use HTTPS
 });
 builder.Services.Configure<IdentityServerOptions>(options =>
 {
@@ -62,22 +62,17 @@ builder.Services.AddScoped<IProfileService, ProfileAppService>();
 
 var app = builder.Build();
 
-// Configure the application for production environment
-if (app.Environment.IsProduction())
+// Configure the HTTP request pipeline
+if (!app.Environment.IsDevelopment())
 {
-    var port = builder.Configuration["PORT"];
-    if (!string.IsNullOrEmpty(port))
-    {
-        // Use HTTPS for production
-        app.Urls.Add($"https://*:{port}");
-    }
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts(); // Enforce HTTP Strict Transport Security
 }
-else
-{
-    var port = builder.Configuration["PORT"];
-    // For development or other environments
-    app.Urls.Add($"http://*:{port}");
-}
+app.UseHttpsRedirection(); // Ensure HTTPS redirection
+app.UseStaticFiles();
+app.UseRouting();
+app.UseIdentityServer();
+app.UseAuthorization();
 
 // Migração automática do banco de dados
 using (var scope = app.Services.CreateScope())
@@ -96,19 +91,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Configure the HTTP request pipeline
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseRouting();
-app.UseIdentityServer();
-app.UseAuthorization();
-
-// Inicializa dados do banco de dados
 SeedDatabaseIdentityServer(app);
 
 app.MapControllerRoute(
