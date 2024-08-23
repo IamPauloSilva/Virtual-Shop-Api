@@ -1,65 +1,59 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VShop.Products.Models;
 
-namespace VShop.Products.Context
+public class AppDbContext : DbContext
 {
-    public class AppDbContext : DbContext
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+
+    public DbSet<Category>? Categories { get; set; }
+    public DbSet<Product>? Products { get; set; }
+
+    // Fluent API
+    protected override void OnModelCreating(ModelBuilder mb)
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        // Category
+        mb.Entity<Category>()
+            .ToTable("ProductCategories")  // Explicitly specify the table name
+            .HasKey(c => c.CategoryId);
 
-        public DbSet<Category>? ProductCategories { get; set; }
-        public DbSet<Product>? Products { get; set; }
+        mb.Entity<Category>()
+            .Property(c => c.Name)
+            .HasMaxLength(100)
+            .IsRequired();
 
-        //Fluent API
-        protected override void OnModelCreating(ModelBuilder mb)
-        {
-            //category
-            mb.Entity<Category>().HasKey(c => c.CategoryId);
+        // Product
+        mb.Entity<Product>()
+            .ToTable("Products")
+            .HasKey(p => p.Id);
 
-            mb.Entity<Category>().
-                 Property(c => c.Name).
-                   HasMaxLength(100).
-                        IsRequired();
+        mb.Entity<Product>()
+            .Property(p => p.Name)
+            .HasMaxLength(100)
+            .IsRequired();
 
-            //Product
-            mb.Entity<Product>().
-               Property(c => c.Name).
-                 HasMaxLength(100).
-                   IsRequired();
+        mb.Entity<Product>()
+            .Property(p => p.Description)
+            .HasMaxLength(255)
+            .IsRequired();
 
-            mb.Entity<Product>().
-              Property(c => c.Description).
-                   HasMaxLength(255).
-                       IsRequired();
+        mb.Entity<Product>()
+            .Property(p => p.ImageURL)
+            .HasMaxLength(255)
+            .IsRequired();
 
-            mb.Entity<Product>().
-              Property(c => c.ImageURL).
-                  HasMaxLength(255).
-                      IsRequired();
+        mb.Entity<Product>()
+            .Property(p => p.Price)
+            .HasPrecision(12, 2);
 
-            mb.Entity<Product>().
-               Property(c => c.Price).
-                 HasPrecision(12, 2);
+        mb.Entity<Product>()
+            .HasOne(p => p.Category)
+            .WithMany(c => c.Products)
+            .HasForeignKey(p => p.CategoryId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-            mb.Entity<Category>()
-              .HasMany(g => g.Products)
-                .WithOne(c => c.Category)
-                .IsRequired()
-                  .OnDelete(DeleteBehavior.Cascade);
-
-            mb.Entity<Category>().HasData(
-                new Category
-                {
-                    CategoryId = 1,
-                    Name = "School",
-                },
-                new Category
-                {
-                    CategoryId = 2,
-                    Name = "Acessories",
-                }
-            );
-
-        }
+        mb.Entity<Category>().HasData(
+            new Category { CategoryId = 1, Name = "School" },
+            new Category { CategoryId = 2, Name = "Accessories" } // Corrected spelling
+        );
     }
 }

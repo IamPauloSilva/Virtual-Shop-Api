@@ -17,7 +17,7 @@ namespace VShop.Products.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "ProductCategories",
+                name: "ProductCategories",  // This name should match your Fluent API configuration
                 columns: table => new
                 {
                     CategoryId = table.Column<int>(type: "int", nullable: false)
@@ -51,7 +51,7 @@ namespace VShop.Products.Migrations
                 {
                     table.PrimaryKey("PK_Products", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Products_ProductCategories_CategoryId",
+                        name: "FK_Products_ProductCategories_CategoryId",  // Updated foreign key name
                         column: x => x.CategoryId,
                         principalTable: "ProductCategories",
                         principalColumn: "CategoryId",
@@ -65,7 +65,7 @@ namespace VShop.Products.Migrations
                 values: new object[,]
                 {
                     { 1, "School" },
-                    { 2, "Acessories" }
+                    { 2, "Accessories" } // Corrected spelling
                 });
 
             migrationBuilder.CreateIndex(

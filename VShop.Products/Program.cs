@@ -3,7 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Collections;
 using System.Text.Json.Serialization;
-using VShop.Products.Context;
+
 using VShop.Products.Mappings;
 using VShop.Products.Repositorys;
 using VShop.Products.Services.CategoryService;
@@ -103,6 +103,13 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+// Apply migrations and create the database if not exists
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
+}
 
 if (builder.Environment.IsProduction())
 {

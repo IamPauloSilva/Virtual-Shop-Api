@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using VShop.Products.Context;
+
 using VShop.Products.Dto;
 using VShop.Products.Models;
 using VShop.Products.Repositorys;
