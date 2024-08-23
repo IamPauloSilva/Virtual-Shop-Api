@@ -170,12 +170,11 @@ namespace IdentityServerHost.Quickstart.UI
                     {
                         if (context.IsNativeClient())
                         {
-                            // The client is native, so this change in how to
-                            // return the response is for better UX for the end user.
+                            // Para clientes nativos, redireciona de uma maneira que melhora a experiência do usuário.
                             return this.LoadingPage("Redirect", model.ReturnUrl);
                         }
 
-                        // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
+                        // Confia no returnUrl desde que GetAuthorizationContextAsync retornou não nulo
                         return Redirect(model.ReturnUrl);
                     }
 

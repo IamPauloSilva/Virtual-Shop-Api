@@ -1,3 +1,4 @@
+using Duende.IdentityServer.Configuration;
 using Duende.IdentityServer.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
@@ -50,7 +51,11 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.SameSite = SameSiteMode.None;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
-
+builder.Services.Configure<IdentityServerOptions>(options =>
+{
+    options.Authentication.CookieSameSiteMode = SameSiteMode.None;
+    
+});
 // Adiciona serviços personalizados
 builder.Services.AddScoped<IDatabaseSeedInitializer, DatabaseIdentityServerInitializer>();
 builder.Services.AddScoped<IProfileService, ProfileAppService>();
@@ -90,7 +95,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-
+app.UseHsts();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
