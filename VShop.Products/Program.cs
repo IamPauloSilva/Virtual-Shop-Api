@@ -3,7 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Collections;
 using System.Text.Json.Serialization;
-
+using VShop.Products.Context;
 using VShop.Products.Mappings;
 using VShop.Products.Repositorys;
 using VShop.Products.Services.CategoryService;
